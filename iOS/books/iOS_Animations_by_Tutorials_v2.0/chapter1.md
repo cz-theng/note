@@ -1,12 +1,18 @@
 #Chapter 1: Getting Started with View Animations
 
-## UIView动画的基本方法
-
-函数原型：
-
-​	
-
-​	animateWithDuration(_:animations:)
+## 方法
+	
+	// Swift
+	class func animate(withDuration duration: TimeInterval, animations: @escaping () -> Swift.Void)
+	class func animate(withDuration duration: TimeInterval, animations: @escaping () -> Swift.Void, completion: (@escaping (Bool) -> Swift.Void)? = nil)
+	class func animate(withDuration duration: TimeInterval, delay: TimeInterval, options: UIViewAnimationOptions = [], animations: @escaping () -> Swift.Void, completion: (@escaping (Bool) -> Swift.Void)? = nil)
+	
+	//OC
+	+ (void)animateWithDuration:(NSTimeInterval)duration animations:(void (^)(void))animations NS_AVAILABLE_IOS(4_0);
+	+ (void)animateWithDuration:(NSTimeInterval)duration animations:(void (^)(void))animations completion:(void (^ __nullable)(BOOL finished))completion NS_AVAILABLE_IOS(4_0);
+	+ (void)animateWithDuration:(NSTimeInterval)duration delay:(NSTimeInterval)delay options:(UIViewAnimationOptions)options animations:(void (^)(void))animations completion:(void (^ __nullable)(BOOL finished))completion NS_AVAILABLE_IOS(4_0);
+	
+	
 
 通过这几个方法可以对View对象进行动画设置。
 
