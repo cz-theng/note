@@ -236,21 +236,7 @@ channel也是一个引用类型，所以其初始零值也是nil。然后"<-"和
 
 这里在断言失败的时候，如果继续是用res，那么其值为0。
     
-#### zero width 地址一致
-zero width指其占用内存大小为0：
 
-    type data struct {
-    }
-
-    func main() {
-        a := &data{}
-        b := &data{}
-    
-        if a == b {
-            fmt.Printf("same address - a=%p b=%p\n",a,b)
-            //prints: same address - a=0x1953e4 b=0x1953e4
-        }
-    }
 
 #### nil和interface
 interface的本质是一个二元组（T=int, V=3）
@@ -358,3 +344,115 @@ for...range中的那个可以使用的变量，实际上是一个copy，而且�
     }
 
 原因是map类型是不可以进行索引的，而slice则可以。修改方式是给m["x"]重新赋值。
+
+
+### 4.struct
+#### 何时使用空struct{},举例说明
+当只需要方法，而不需要成员存储空间的时候，可以空struct来节约空间，因为其大小为0。
+使用场景，比如通过map来实现一个set：
+
+    set := make(map[string]struct{})
+    for _, value := range []string{"apple", "orange", "apple"} {
+        set[value] = struct{}{}
+    }
+
+又比如是否置位：
+
+    seen := make(map[string]struct{})
+    for _, ok := seen[v]; !ok {
+        // First time visiting a vertex.
+        seen[v] = struct{}{}
+    }
+
+这里的value也不占空间，如果用bool起码占一个字节，同理可推，一些开关channel：
+
+    ch := make(chan struct{})
+    go worker(ch)
+    
+    // Send a message to a worker.
+    ch <- struct{}{}
+    
+    // Receive a message from the worker.
+    <-c
+
+#### struct比较
+当struct成员含有 map/slice/fun 时，不可以进行相等性比较，同时struct不可进行大小比较。
+    
+
+#### zero width 地址一致
+zero width指其占用内存大小为0：
+
+    type data struct {
+    }
+
+    func main() {
+        a := &data{}
+        b := &data{}
+    
+        if a == b {
+            fmt.Printf("same address - a=%p b=%p\n",a,b)
+            //prints: same address - a=0x1953e4 b=0x1953e4
+        }
+    }
+
+
+#### 空struct有多大
+
+	type S struct{}
+
+	s := S{}
+	fmt.Printf("S size is %d \n", unsafe.Sizeof(s))
+
+大小为0
+
+#### struct为空
+
+一个 `s := TypeOfStruct{}` 如何判断为空， 一种是增加一个empty的方法。或者让其
+与 `TypeOfStruct{}`做比较，前提条件是每个成员都是可比较的。
+
+## Hack 101
+### 1. method and interface
+
+#### fmt.Println实际上调用了对象的`String() string` 方法
+
+    package main
+
+    import (
+        "fmt"
+    )
+
+    type Orange struct {
+        Quantity int
+    }
+
+    func (o *Orange) Increase(n int) {
+        o.Quantity += n
+    }
+
+    func (o *Orange) Decrease(n int) {
+        o.Quantity -= n
+    }
+
+    func (o *Orange) String() string {
+        return fmt.Sprintf("it is %v", o.Quantity)
+    }
+
+    func main() {
+        var orange Orange
+        orange.Increase(12)
+        orange.Decrease(5)
+        fmt.Println(orange)
+    }
+
+这里输出的是"{7}"。如果将"String() string"方法改为：
+
+
+    func (o Orange) String() string {
+        return fmt.Sprintf("it is %v", o.Quantity)
+    }
+
+结果就变成了：
+
+    it is 7
+
+因为这里origin是个struct 而不是指针。同时指针的方法是可以给struct用的。
