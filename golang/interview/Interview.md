@@ -161,6 +161,37 @@ i取自外界的i的指针，不是一个copy。而后面参数传递的是一�
     }
 
 ### 6. struce
+
+### 7. interface
+
+函数定义在struct值类型上时，既可以通过指针调用也可以通过值调用。反之，如果方法定义在指针
+方法上，那么只能通过指针调用。
+
+    type F interface {
+    f()
+    }
+
+    type S1 struct{}
+
+    func (s S1) f() {}
+
+    type S2 struct{}
+
+    func (s *S2) f() {}
+
+    s1Val := S1{}
+    s1Ptr := &S1{}
+    s2Val := S2{}
+    s2Ptr := &S2{}
+
+    var i F
+    i = s1Val
+    i = s1Ptr
+    i = s2Ptr
+
+    // The following doesn't compile, since s2Val is a value, and there is no value receiver for f.
+    //   i = s2Val
+
 #### struct为空
 
 一个 `s := TypeOfStruct{}` 如何判断为空， 一种是增加一个empty的方法。或者让其
@@ -409,6 +440,15 @@ zero width指其占用内存大小为0：
 
 一个 `s := TypeOfStruct{}` 如何判断为空， 一种是增加一个empty的方法。或者让其
 与 `TypeOfStruct{}`做比较，前提条件是每个成员都是可比较的。
+
+
+## 奇技淫巧
+
+### `omitempty` 作用和坑
+在JSON中，omitempty指定的地段，在序列化的时候，当结果为空的时候，不会出现在序列化结果中
+
+但是，对于嵌套结构字段是不生效的。另外如果其值就是语义上的空，如0/""/0.0等，也会导致其不会出现
+在序列化结果
 
 ## Hack 101
 ### 1. method and interface
