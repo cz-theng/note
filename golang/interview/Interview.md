@@ -1,7 +1,18 @@
 # Interview
 
-## 代码片段
+## 数据结构
+### 切片
+#### nil切片和len=0的切片
 
+    type SliceHeader struct {
+    Data uintptr  //引用数组指针地址
+    Len  int     // 切片的目前使用长度
+    Cap  int     // 切片的容量
+    }
+
+对于nil切片，三个值都是0，而对于0切片 ` s2 := make([]int,0)` 则data指向固定地址，其他两个0
+
+## 代码片段
 ### 1. panic
 #### 1.1 panic和defer的关系
 
@@ -496,3 +507,4 @@ zero width指其占用内存大小为0：
     it is 7
 
 因为这里origin是个struct 而不是指针。同时指针的方法是可以给struct用的。
+
