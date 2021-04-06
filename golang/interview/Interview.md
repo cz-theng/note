@@ -508,3 +508,16 @@ zero width指其占用内存大小为0：
 
 因为这里origin是个struct 而不是指针。同时指针的方法是可以给struct用的。
 
+
+### 2. string to []byte 零拷贝
+
+    type StringHeader struct { // StringHeader 是字符串在go的底层结构。
+        Data uintptr
+        Len  int
+    }
+
+    type SliceHeader struct { // SliceHeader 是切片在go的底层结构。
+        Data uintptr
+        Len  int
+        Cap  int
+    }
